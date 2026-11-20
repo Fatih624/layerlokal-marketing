@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent
 FIGURES = ROOT / "Meshy-Referenzen"
 DRAFTS = ROOT / "Entwuerfe-Vater-und-Sohn"
 FACES = ROOT / "Grease-Pencil"
-PAGES = 10
+PAGES = 11
 FILE = ROOT / "LayerLokal-Pino-Konzeptheft.pdf"
 BG, INK, RUST, GREEN, LINE, WHITE = map(
     HexColor, ["#FBF6EF", "#2B211B", "#93401F", "#E1ECDF", "#E4D4C2", "#FFFFFF"]
@@ -287,6 +287,30 @@ paragraph("Gerendert in Blender 5.2.1 LTS mit Eevee. In der .blend-Datei lassen 
 canvas.showPage()
 
 
+
+page(11, "Mina · Gesichtsanimation")
+heading("Fünf Ausdrücke für Mina", "Die Grease-Pencil-Zeichnungen folgen Minas Kopf- und Nackenbewegung. Die Locken bewegen sich mit dem Kopf. Die Standbilder stammen aus der editierbaren Eevee-Studie.")
+mina_faces = FACES / "Mina-Gesichtsstudie"
+mina_stills = [
+    ("Neutral", "001-Neutral.png"),
+    ("Freude", "022-Freude.png"),
+    ("Lachen", "067-Lachen.png"),
+    ("Verwunderung", "113-Verwunderung.png"),
+    ("Weinen", "177-Weinen.png"),
+    ("Skepsis", "221-Skepsis.png"),
+]
+width = (CONTENT - 22) / 3
+for index, (label, image) in enumerate(mina_stills):
+    x = M + index % 3 * (width + 11)
+    y = 177 + 205 * (index // 3)
+    box(x, y, width, 191)
+    picture(mina_faces / image, x + 6, y + 7, width - 12, 154)
+    text(label, x + 10, y + 169, 11, "Strong", RUST)
+card("Was der Test zeigt",
+     "Alle fünf Gefühle sind unterscheidbar. Die Gesichtslinien bleiben bei Kopfdrehung auf der Gesichtsform. Beim Weinen setzen die Tränen an den unteren Lidern an und laufen unterschiedlich weit über die Wangen.",
+     M, 595, CONTENT, 83, GREEN)
+paragraph("Für finale Nahaufnahmen bleiben der Haaransatz, die Ohrkonturen und der Schatten am Kinn zu verfeinern. Geprüfte Vorschau und Blender-Datei liegen auf D: in Animationen/Mina-Gesichtsstudie.", M, 700, CONTENT, 10.5, 15)
+canvas.showPage()
 
 canvas.save()
 temp.replace(FILE)

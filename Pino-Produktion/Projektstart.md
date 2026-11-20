@@ -20,7 +20,7 @@ Im Blender Asset Browser lassen sich die Ordner **Animationen** und **Assets/Mod
 - [Pino und Riko](Assets/Modelle/Blender-Assets/Pino-und-Riko.blend). Acht getrennte bewegliche Schichten für Pino, Rikos Brille als eigenes Element. Beide Gesichter sind vorbereitet für Grease Pencil.
 - [Riegerplatz-Kulissen](Assets/Modelle/Blender-Assets/Riegerplatz-Kulissen.blend). Die Bank hat 10.000 Dreiecke, die Fassade 25.000. Beide enthalten gepackte 2K-PBR-Texturen und stehen auf Z = 0.
 - [Meshy-Referenzen aller drei Figuren](Assets/Charaktere). Jeweils Vorderseite, linkes Profil und Rückseite in derselben T-Pose. Für Meshy nur die neutralen Ansichten im Unterordner Meshy hochladen.
-- Die unveränderten Meshy-Downloads und ausgepackten FBX-Dateien bleiben in der Arbeitskopie auf D:. Die Blender-Dateien enthalten die verwendeten Texturen.
+- Die [unveränderten Meshy-Downloads](Assets/Modelle/Meshy-Originale) enthalten die GLB- und FBX-Originale. Die Blender-Dateien enthalten die verwendeten Texturen.
 
 ## Stil und Abnahme
 
@@ -29,3 +29,7 @@ Matte, leicht handgemachte 3D-Körper und Kulissen in der LayerLokal-Palette, mi
 Mina wurde in drei Ansichten vor dem Rig geprüft. Die glatte Gesichtsfläche bleibt frei von Augen, Brauen, modellierter Nase und Mund. Alle 33.004 Punkte sind gewichtet, das Rig hat 28 Knochen. Gehen ist für den Blockout und mittlere Einstellungen geeignet. Beim Laufen stauchen einzelne Bereiche an Achsel und gebogenem Bein. Für Nahaufnahmen die Stufen am Kinn glätten. Eigenes Finger-Rig oder Posenkorrektur einplanen, sobald Mina sichtbar zugreift. Beim Ziehen des Wagens den Gehzyklus als Ausgangspunkt und den Griff als eigene Pose mit Kontaktprüfung verwenden.
 
 Erste Meshy-Runde: drei private Standard-Generierungen mit je 30 Credits (Mina, Parkbank, Fassade). Fahrzeuge, Räder und Maskottchen sind in Blender entstanden. Jan ist als Entwurfsreferenz und Platzhalter vorgesehen.
+
+## Mina im Close-up
+
+Die [Grease-Pencil-Gesichtsstudie](Animationen/Mina-Gesichtsstudie/README.md) enthält fünf Emotionen, eine editierbare Blender-Datei und sechs MP4-Vorschauen.
