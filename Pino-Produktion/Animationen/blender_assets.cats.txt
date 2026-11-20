@@ -1,0 +1,10 @@
+# This is an Asset Catalog Definition file for Blender.
+VERSION 1
+
+0994fe84-25c7-4eaa-8a75-325d554f38c6:Animationen:Animationen
+9d40dd24-f80f-4779-a3fd-3564748da410:Animationen/Kopf:Kopf
+6f9d9a06-3899-4608-8e91-ea63bf3bbfe2:Animationen/Reaktion:Reaktion
+375c794f-7f8e-443e-b595-77661a21c127:Rigs:Rigs
+726c5578-68b2-4676-811f-0151558a3ab2:Rigs/Referenz:Referenz
+d00ca35c-98c0-4f29-84d1-0fb396ac4cb4:Animationen/Mina:Mina
+bd8a87a9-bc26-4f26-9f57-e068acbd16f4:Rigs/Mina:Mina

@@ -1,0 +1,16 @@
+{
+  "Einheiten": "mm",
+  "Bodenfreiheit_Rad_auf_Stuetze": 8,
+  "Axialspiel_gesamt": 1.8,
+  "Nabenbohrung_intakt": [
+    16.8,
+    16.8
+  ],
+  "Nabenbohrung_oval": [
+    23.2,
+    17.6
+  ],
+  "Sichtbares_Querwandern_oval_nachgewiesen": 6,
+  "Radwinkel_bei_500_mm_Fahrt_rad": 5.555555555555555,
+  "Spiel_zur_Wagenwand": 11.5
+}
