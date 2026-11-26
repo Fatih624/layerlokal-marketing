@@ -3,14 +3,44 @@
 <a id="series" href="#seite-4">A · Serienhandbuch</a>
 <a id="castLink" href="#figuren">Figuren</a>
 <a id="episode" href="#folgen">B · Folgen</a>
+<a id="moodLink" href="#moodboard">Moodboard</a>
 <a id="repo" href="#github">GitHub</a>
 </nav>
 <section id="home"><h1>Pinos Nachbarschaft</h1>
 <div class="areas"><a class="area series" href="#seite-4"><h2>A · Serienhandbuch</h2><p>Figuren, Schauplätze, Bildsprache und Prüfregeln für alle Folgen.</p></a>
-<a class="area episodes" href="#folgen"><h2>B · Folgen</h2><p>Handlung, Storyboard, Dialog und Produktionsstand je Folge.</p></a></div>
+<a class="area episodes" href="#folgen"><h2>B · Folgen</h2><p>Handlung, Storyboard, Dialog und Produktionsstand je Folge.</p></a>
+<a class="area mood" href="#moodboard"><h2>C · Moodboard</h2><p>Inspiration aus dem Internet sammeln: Bildstil, Orte, Licht, Bewegung und Marketing.</p></a></div>
 <h2><a href="#figuren">Figuren</a></h2><div id="homeCast" class="cast-grid"></div></section>
 <section id="cast" hidden><h1>Figuren</h1><div id="allCast" class="cast-grid"></div></section>
 <dialog id="preview" aria-labelledby="characterName"><div class="dialog-head"><h2 id="characterName"></h2><button id="closePreview" type="button">Schließen</button></div>
 <img id="characterArt" alt=""><div class="links"><a id="sheetDownload" download>Charactersheet als PDF</a><a id="imageDownload" download></a><a id="chapterLink">Figurenkapitel öffnen</a></div></dialog>
 <section id="episodes" hidden><h1>Folgen</h1><a class="episode-card" href="#seite-35"><div><small>FOLGE 1 · PILOT</small><h2>Das vierte Rad</h2><p>90 Sekunden · Mina bringt die Wimpel zum Hoffest.</p><strong>Folgenbuch öffnen</strong></div></a></section>
-<section id="reader" hidden><aside><label for="search">Inhaltsverzeichnis</label><input id="search" type="search" placeholder="Im gesamten Buch suchen"><div id="list"></div></aside><article><small id="where"></small><h2 id="title"></h2><div class="tools"><button id="back" aria-label="Vorige Seite">Zurück</button><button id="next">Weiter</button><button id="view">Textansicht</button><button id="edit">Text bearbeiten</button><button id="print">Drucken</button></div><div id="sheet"></div><section id="editor" hidden><label for="field">Text dieser Seite · Entwurf in diesem Browser</label><textarea id="field"></textarea><button id="save">Entwurf speichern</button><button id="cancel">Abbrechen</button></section><div id="msg" role="status"></div></article></section><section id="github" hidden><h2>GitHub · Produktion</h2><h3>Aktuelle Arbeitsquellen</h3><label for="sources">Datei aus dem lokalen Checkout</label><select id="sources"></select><pre id="sourceText"></pre><p>Quellen und Versionsverlauf im Marketing-Repository. Nach dem Abruf öffnet die Leitstelle die HTML-Fassung aus dem aktualisierten Checkout. Die Arbeitsquellen werden direkt aus ihren Dateien gelesen.</p><div class="links"><a href="https://github.com/Fatih624/layerlokal-marketing">Repository öffnen</a><a href="https://github.com/Fatih624/layerlokal-marketing/commits/main/">Änderungsverlauf</a><a href="https://github.com/Fatih624/layerlokal-marketing/tree/main/Pino-Produktion">Produktionsquellen</a><a href="https://github.com/Fatih624/layerlokal-marketing/pulls">Pull Requests</a></div><h3>Eigene Textentwürfe</h3><p>Gespeicherte Entwürfe gelten für diesen Browser. Der Export enthält die bearbeiteten Seiten als Markdown für die Übernahme ins Repository.</p><button id="export">Textentwürfe exportieren</button></section></main><script src="buch.js"></script><script src="figuren.js"></script><script src="studio.js"></script><script src="sync.js"></script></html>
+<section id="reader" hidden><aside><label for="search">Inhaltsverzeichnis</label><input id="search" type="search" placeholder="Im gesamten Buch suchen"><div id="list"></div></aside><article><small id="where"></small><h2 id="title"></h2><div class="tools"><button id="back" aria-label="Vorige Seite">Zurück</button><button id="next">Weiter</button><button id="view">Textansicht</button><button id="edit">Text bearbeiten</button><button id="print">Drucken</button></div><div id="sheet"></div><section id="editor" hidden><label for="field">Text dieser Seite · Entwurf in diesem Browser</label><textarea id="field"></textarea><button id="save">Entwurf speichern</button><button id="cancel">Abbrechen</button></section><div id="msg" role="status"></div></article></section><section id="moodboard" hidden aria-labelledby="mbTitle">
+<div class="mb-head"><div><small>C · INSPIRATION</small><h1 id="mbTitle">Moodboard</h1><p>Sammle Bilder aus dem Internet für Pinos Nachbarschaft und LayerLokal. Die Bilder werden lokal im Repository gespeichert und lassen sich mit GitHub teilen.</p></div>
+<div class="mb-palette" aria-label="Farbwelt der sichtbaren Bilder"><span>Farbwelt</span><div id="mbWorld"></div></div></div>
+<div class="mb-tools">
+<form id="mbSearch" class="mb-panel"><label for="mbQuery">Inspiration suchen</label><div class="mb-row"><input id="mbQuery" type="search" placeholder="z. B. Bilderbuch Nachbarschaft Aquarell, Werkstatt Licht, Stop-Motion" autocomplete="off"></div>
+<div class="mb-sources" id="mbSources"></div><p class="mb-hint">Öffnet die Suche in einem neuen Tab. Ein gefundenes Bild kopierst du und fügst es hier mit <kbd>Strg</kbd>+<kbd>V</kbd> ein. Alternativ kopierst du die Bildadresse oder den Seitenlink.</p></form>
+<form id="mbAdd" class="mb-panel mb-drop"><label for="mbLink">Bild hinzufügen</label>
+<div class="mb-row"><input id="mbLink" type="url" placeholder="Bild- oder Seitenlink einfügen …" autocomplete="off"><select id="mbArea" aria-label="Bereich"></select><button id="mbSubmit" type="submit">Hinzufügen</button></div>
+<p class="mb-hint">Du kannst auch ein Bild hierher ziehen, mit <kbd>Strg</kbd>+<kbd>V</kbd> einfügen oder eine <button type="button" class="mb-linkbtn" id="mbPick">Datei wählen</button>.</p><input id="mbFile" type="file" accept="image/*" multiple hidden>
+<div id="mbStatus" role="status"></div></form>
+</div>
+<div class="mb-filter"><div id="mbAreas" class="mb-chips" role="group" aria-label="Nach Bereich filtern"></div><input id="mbFind" type="search" placeholder="Titel, Notiz oder Tag suchen" aria-label="Moodboard durchsuchen"></div>
+<div id="mbTags" class="mb-chips mb-tagrow" role="group" aria-label="Nach Tag filtern"></div>
+<div id="mbBoard" class="mb-board"></div>
+<div id="mbEmpty" class="mb-empty" hidden><strong>Noch keine Inspiration in dieser Auswahl.</strong><span>Füge oben einen Link ein oder zieh ein Bild auf die Seite.</span></div>
+<p class="mb-foot" id="mbFoot"></p>
+</section>
+<dialog id="mbDialog" aria-labelledby="mbDlgTitle"><div class="dialog-head"><h2 id="mbDlgTitle">Inspiration</h2><button type="button" id="mbClose">Schließen</button></div>
+<div class="mb-detail"><div class="mb-detail-img"><img id="mbDlgImg" alt=""></div>
+<form id="mbEdit" class="mb-edit"><div id="mbDlgColors" class="mb-swatches big"></div>
+<label for="mbEdTitle">Titel</label><input id="mbEdTitle" maxlength="120">
+<label for="mbEdArea">Bereich</label><select id="mbEdArea"></select>
+<label for="mbEdTags">Tags <span class="mb-muted">(mit Komma trennen)</span></label><input id="mbEdTags" placeholder="aquarell, abendlicht, werkbank">
+<label for="mbEdNote">Notiz · Was gefällt uns daran?</label><textarea id="mbEdNote" rows="4"></textarea>
+<label for="mbEdSource">Quelle</label><input id="mbEdSource" type="url" placeholder="https://…">
+<p class="mb-muted" id="mbEdMeta"></p>
+<div class="mb-actions"><button type="submit" class="mb-primary">Speichern</button><a id="mbEdOpen" target="_blank" rel="noopener noreferrer">Quelle öffnen</a><button type="button" id="mbDelete" class="mb-danger">Entfernen</button></div>
+<div id="mbEdMsg" role="status"></div></form></div></dialog>
+<section id="github" hidden><h2>GitHub · Produktion</h2><h3>Aktuelle Arbeitsquellen</h3><label for="sources">Datei aus dem lokalen Checkout</label><select id="sources"></select><pre id="sourceText"></pre><p>Quellen und Versionsverlauf im Marketing-Repository. Nach dem Abruf öffnet die Leitstelle die HTML-Fassung aus dem aktualisierten Checkout. Die Arbeitsquellen werden direkt aus ihren Dateien gelesen.</p><div class="links"><a href="https://github.com/Fatih624/layerlokal-marketing">Repository öffnen</a><a href="https://github.com/Fatih624/layerlokal-marketing/commits/main/">Änderungsverlauf</a><a href="https://github.com/Fatih624/layerlokal-marketing/tree/main/Pino-Produktion">Produktionsquellen</a><a href="https://github.com/Fatih624/layerlokal-marketing/pulls">Pull Requests</a></div><h3>Eigene Textentwürfe</h3><p>Gespeicherte Entwürfe gelten für diesen Browser. Der Export enthält die bearbeiteten Seiten als Markdown für die Übernahme ins Repository.</p><button id="export">Textentwürfe exportieren</button></section></main><script src="buch.js"></script><script src="figuren.js"></script><script src="studio.js"></script><script src="sync.js"></script><script src="moodboard.js"></script></html>
