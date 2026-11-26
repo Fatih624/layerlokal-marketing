@@ -1,8 +1,14 @@
 """Startet die LayerLokal-Leitstelle auf der lokalen Loopback-Adresse."""
 
 import argparse
+import base64
+from datetime import date
 from functools import partial
 from hashlib import sha256
+from html.parser import HTMLParser
+import ipaddress
+import re
+import socket
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -13,8 +19,8 @@ import secrets
 import subprocess
 from threading import Lock, Thread, Timer
 from urllib.error import URLError
-from urllib.parse import parse_qs, urlsplit
-from urllib.request import urlopen
+from urllib.parse import parse_qs, urljoin, urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener, urlopen
 import webbrowser
 
 HERE = Path(__file__).resolve().parent
@@ -29,6 +35,15 @@ SOURCES = {
     "freigaben": ("Freigaben", "Pino-Produktion/Visual-Bible/FREIGABEN.md"),
 }
 
+
+MOODBOARD = STUDIO / "moodboard"
+MOODBOARD_DATA = MOODBOARD / "moodboard.json"
+MOODBOARD_IMAGES = MOODBOARD / "bilder"
+MOODBOARD_AREAS = {"figuren", "orte", "licht", "bewegung", "marketing"}
+MAX_IMAGE = 15 * 1024 * 1024
+MAX_PAGE = 3 * 1024 * 1024
+BROWSER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                 "(KHTML, like Gecko) Chrome/131.0 Safari/537.36 LayerLokal-Leitstelle")
 
 ORIGIN = "https://github.com/Fatih624/layerlokal-marketing.git"
 def git(*args):
@@ -72,6 +87,219 @@ def pull(progress):
     return f"GitHub-Stand aktualisiert: {before} → {after}." if before != after else f"GitHub-Pull abgeschlossen · {after}."
 
 
+# ---------------------------------------------------------------- Moodboard
+
+def image_extension(data):
+    """Erkennt erlaubte Bildformate an den ersten Bytes (kein SVG)."""
+    if data[:3] == b"\xff\xd8\xff":
+        return ".jpg"
+    if data[:8] == b"\x89PNG\r\n\x1a\n":
+        return ".png"
+    if data[:6] in (b"GIF87a", b"GIF89a"):
+        return ".gif"
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return ".webp"
+    if data[4:12] in (b"ftypavif", b"ftypavis"):
+        return ".avif"
+    return None
+
+
+def check_public_url(url):
+    parts = urlsplit(url)
+    if parts.scheme not in ("http", "https") or not parts.hostname:
+        raise ValueError("Bitte einen vollständigen Link mit http:// oder https:// einfügen.")
+    try:
+        addresses = {info[4][0] for info in socket.getaddrinfo(parts.hostname, None)}
+    except socket.gaierror as error:
+        raise ValueError(f"Die Adresse {parts.hostname} wurde nicht gefunden.") from error
+    for address in addresses:
+        ip = ipaddress.ip_address(address.split("%")[0])
+        if not ip.is_global:
+            raise ValueError("Links ins lokale Netzwerk sind im Moodboard nicht erlaubt.")
+
+
+class SafeRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        check_public_url(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+OPENER = build_opener(SafeRedirect)
+
+
+def fetch(url, limit, referer=None):
+    check_public_url(url)
+    headers = {"User-Agent": BROWSER_AGENT, "Accept": "image/avif,image/webp,image/*,text/html;q=0.9,*/*;q=0.5"}
+    if referer:
+        headers["Referer"] = referer
+    try:
+        with OPENER.open(Request(url, headers=headers), timeout=20) as response:
+            kind = (response.headers.get_content_type() or "").lower()
+            data = response.read(limit + 1)
+            final = response.geturl()
+    except URLError as error:
+        reason = getattr(error, "reason", error)
+        raise ValueError(f"Der Link konnte nicht geladen werden ({reason}).") from error
+    if len(data) > limit:
+        raise ValueError("Die Datei ist zu groß für das Moodboard (höchstens 15 MB).")
+    return data, kind, final
+
+
+class PageInfo(HTMLParser):
+    """Sucht Vorschaubild und Titel einer Webseite (og:image, twitter:image …)."""
+
+    def __init__(self):
+        super().__init__()
+        self.meta = {}
+        self.title = ""
+        self.in_title = False
+        self.first_image = None
+
+    def handle_starttag(self, tag, attrs):
+        values = {key.lower(): (value or "") for key, value in attrs}
+        if tag == "meta":
+            key = (values.get("property") or values.get("name") or "").lower()
+            if key and "content" in values:
+                self.meta.setdefault(key, values["content"].strip())
+        elif tag == "link" and values.get("rel", "").lower() == "image_src":
+            self.meta.setdefault("image_src", values.get("href", ""))
+        elif tag == "title":
+            self.in_title = True
+        elif tag == "img" and not self.first_image:
+            source = values.get("src", "")
+            if source and not source.startswith("data:"):
+                self.first_image = source
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self.in_title = False
+
+    def handle_data(self, data):
+        if self.in_title and len(self.title) < 200:
+            self.title += data
+
+
+def image_from_link(url):
+    """Lädt ein Bild direkt oder das Vorschaubild einer Webseite."""
+    data, kind, final = fetch(url, MAX_IMAGE)
+    if image_extension(data):
+        return data, ""
+    if "html" not in kind and not data.lstrip()[:15].lower().startswith((b"<!doctype", b"<html")):
+        raise ValueError("Unter diesem Link liegt weder ein Bild noch eine Webseite.")
+    page = PageInfo()
+    page.feed(data[:MAX_PAGE].decode("utf-8", errors="replace"))
+    title = (page.meta.get("og:title") or page.meta.get("twitter:title") or page.title).strip()
+    for candidate in (page.meta.get("og:image"), page.meta.get("og:image:url"),
+                      page.meta.get("twitter:image"), page.meta.get("twitter:image:src"),
+                      page.meta.get("image_src"), page.first_image):
+        if candidate:
+            image, _, _ = fetch(urljoin(final, candidate), MAX_IMAGE, referer=final)
+            if image_extension(image):
+                return image, " ".join(title.split())[:120]
+    raise ValueError("Auf dieser Seite wurde kein Vorschaubild gefunden. "
+                     "Tipp: Rechtsklick aufs Bild → „Bildadresse kopieren“ oder Bild kopieren und mit Strg+V einfügen.")
+
+
+def text_field(value, limit):
+    return " ".join(str(value or "").split())[:limit]
+
+
+def clean_tags(value):
+    if isinstance(value, str):
+        value = value.split(",")
+    tags = []
+    for tag in value or []:
+        tag = text_field(tag, 30).lstrip("#").lower()
+        if tag and tag not in tags:
+            tags.append(tag)
+    return tags[:12]
+
+
+class Moodboard:
+    def __init__(self):
+        self.lock = Lock()
+
+    def load(self):
+        if MOODBOARD_DATA.is_file():
+            return json.loads(MOODBOARD_DATA.read_text(encoding="utf-8"))
+        return {"version": 1, "pins": []}
+
+    def save(self, board):
+        MOODBOARD.mkdir(exist_ok=True)
+        temporary = MOODBOARD_DATA.with_suffix(".tmp")
+        temporary.write_text(json.dumps(board, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        temporary.replace(MOODBOARD_DATA)
+
+    def add(self, request):
+        source = text_field(request.get("quelle"), 1000)
+        title = text_field(request.get("titel"), 120)
+        if request.get("bild"):
+            header, _, payload = str(request["bild"]).partition(",")
+            if not header.startswith("data:image/") or ";base64" not in header:
+                raise ValueError("Das eingefügte Bild wurde nicht erkannt.")
+            data = base64.b64decode(payload, validate=True)
+            if len(data) > MAX_IMAGE:
+                raise ValueError("Das Bild ist zu groß (höchstens 15 MB).")
+        elif request.get("link"):
+            link = text_field(request["link"], 2000)
+            data, page_title = image_from_link(link)
+            source = source or link
+            title = title or page_title
+        else:
+            raise ValueError("Bitte einen Link einfügen oder ein Bild hineinziehen.")
+        extension = image_extension(data)
+        if not extension:
+            raise ValueError("Dieses Bildformat wird nicht unterstützt (JPG, PNG, WebP, GIF oder AVIF).")
+        digest = sha256(data).hexdigest()[:16]
+        MOODBOARD_IMAGES.mkdir(parents=True, exist_ok=True)
+        image = MOODBOARD_IMAGES / (digest + extension)
+        if not image.exists():
+            image.write_bytes(data)
+        area = request.get("bereich") if request.get("bereich") in MOODBOARD_AREAS else "figuren"
+        pin = {"id": digest, "bild": "bilder/" + image.name, "titel": title, "quelle": source,
+               "bereich": area, "tags": clean_tags(request.get("tags")),
+               "notiz": str(request.get("notiz") or "")[:2000], "datum": date.today().isoformat()}
+        with self.lock:
+            board = self.load()
+            if any(existing["id"] == digest for existing in board["pins"]):
+                raise ValueError("Dieses Bild ist schon auf dem Moodboard.")
+            board["pins"].insert(0, pin)
+            self.save(board)
+        return pin
+
+    def change(self, request):
+        with self.lock:
+            board = self.load()
+            pin = next((pin for pin in board["pins"] if pin["id"] == request.get("id")), None)
+            if not pin:
+                raise KeyError(request.get("id"))
+            if "titel" in request:
+                pin["titel"] = text_field(request["titel"], 120)
+            if request.get("bereich") in MOODBOARD_AREAS:
+                pin["bereich"] = request["bereich"]
+            if "tags" in request:
+                pin["tags"] = clean_tags(request["tags"])
+            if "notiz" in request:
+                pin["notiz"] = str(request["notiz"] or "")[:2000]
+            if "quelle" in request:
+                pin["quelle"] = text_field(request["quelle"], 1000)
+            self.save(board)
+            return pin
+
+    def remove(self, request):
+        with self.lock:
+            board = self.load()
+            pin = next((pin for pin in board["pins"] if pin["id"] == request.get("id")), None)
+            if not pin:
+                raise KeyError(request.get("id"))
+            board["pins"].remove(pin)
+            self.save(board)
+            image = (MOODBOARD / pin["bild"]).resolve()
+            if image.is_relative_to(MOODBOARD_IMAGES) and image.is_file():
+                image.unlink()
+        return {"ok": True}
+
+
 class Application:
     def __init__(self, output):
         self.output = output
@@ -79,6 +307,7 @@ class Application:
         self.identity = sha256(f"studio-v1{ROOT}\0{output}".encode()).hexdigest()
         self.lock = Lock()
         self.job = None
+        self.moodboard = Moodboard()
 
     def status(self):
         with self.lock:
@@ -194,6 +423,17 @@ class Handler(BaseHTTPRequestHandler):
             return
         url = urlsplit(self.path)
         try:
+            if url.path.startswith("/api/moodboard/"):
+                action = {"neu": self.app.moodboard.add, "aendern": self.app.moodboard.change,
+                          "loeschen": self.app.moodboard.remove}.get(url.path.rsplit("/", 1)[1])
+                if not action:
+                    raise LookupError
+                length = int(self.headers.get("Content-Length") or 0)
+                if length > 25 * 1024 * 1024:
+                    raise ValueError("Die Anfrage ist zu groß.")
+                request = json.loads(self.rfile.read(length) or b"{}")
+                self.json(action(request))
+                return
             if url.path == "/api/pull":
                 self.app.begin("pull")
             else:
@@ -201,7 +441,11 @@ class Handler(BaseHTTPRequestHandler):
                 return
             self.json({"ok": True})
         except (KeyError, FileNotFoundError):
-            self.json({"error": "Die Quelldatei ist nicht verfügbar."}, HTTPStatus.NOT_FOUND)
+            self.json({"error": "Der Eintrag ist nicht verfügbar."}, HTTPStatus.NOT_FOUND)
+        except LookupError:
+            self.json({"error": "Vorgang nicht gefunden."}, HTTPStatus.NOT_FOUND)
+        except (ValueError, TypeError) as error:
+            self.json({"error": str(error)}, HTTPStatus.BAD_REQUEST)
         except (OSError, RuntimeError) as error:
             self.json({"error": str(error)}, HTTPStatus.CONFLICT)
 

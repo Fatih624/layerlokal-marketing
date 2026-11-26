@@ -3,12 +3,12 @@ let n=4,mode="A",plain=false;
 const prefix="pino.01.page.";
 const draft=i=>localStorage.getItem(prefix+i);
 function openPage(i){location.hash="seite-"+i;show(i)}
-function show(i){n=i;mode=i===3||i>=35?"B":"A";el("github").hidden=true;el("reader").hidden=false;el("editor").hidden=true;el("sheet").hidden=false;el("msg").textContent="";const p=pages[n-1];el("title").textContent=n<4?["Arbeitsbuch","Inhalt A","Inhalt B"][n-1]:p.key;el("where").textContent=(mode==="A"?"A · SERIENHANDBUCH":"B · DAS VIERTE RAD")+"   /   SEITE "+i+" VON "+pages.length;el("sheet").replaceChildren();const node=document.createElement(plain?"pre":"img");if(plain)node.textContent=draft(i)??p.text;else{node.src="seiten/"+i+".webp";node.alt=p.cap+" · "+p.key}el("sheet").append(node);el("view").textContent=plain?"Originalansicht":"Textansicht";el("back").disabled=[1,4,35].includes(i);el("next").disabled=i===34||i===pages.length;nav();listing()}
+function show(i){n=i;mode=i===3||i>=35?"B":"A";el("github").hidden=true;el("moodboard").hidden=true;el("reader").hidden=false;el("editor").hidden=true;el("sheet").hidden=false;el("msg").textContent="";const p=pages[n-1];el("title").textContent=n<4?["Arbeitsbuch","Inhalt A","Inhalt B"][n-1]:p.key;el("where").textContent=(mode==="A"?"A · SERIENHANDBUCH":"B · DAS VIERTE RAD")+"   /   SEITE "+i+" VON "+pages.length;el("sheet").replaceChildren();const node=document.createElement(plain?"pre":"img");if(plain)node.textContent=draft(i)??p.text;else{node.src="seiten/"+i+".webp";node.alt=p.cap+" · "+p.key}el("sheet").append(node);el("view").textContent=plain?"Originalansicht":"Textansicht";el("back").disabled=[1,4,35].includes(i);el("next").disabled=i===34||i===pages.length;nav();listing()}
 function nav() {
-  const views = {home: "H", episodes: "E", cast: "C", github: "G"};
+  const views = {home: "H", episodes: "E", cast: "C", moodboard: "M", github: "G"};
   for (const [id, value] of Object.entries(views)) el(id).hidden = mode !== value;
   el("reader").hidden = mode !== "A" && mode !== "B";
-  for (const [id, active] of [["homeLink",mode==="H"],["series",mode==="A"],["castLink",mode==="C"],["episode",["B","E"].includes(mode)],["repo",mode==="G"]]) {
+  for (const [id, active] of [["homeLink",mode==="H"],["series",mode==="A"],["castLink",mode==="C"],["episode",["B","E"].includes(mode)],["moodLink",mode==="M"],["repo",mode==="G"]]) {
     el(id).classList.toggle("active",active);
     if (active) el(id).setAttribute("aria-current","true");
     else el(id).removeAttribute("aria-current");
@@ -63,7 +63,7 @@ function route() {
   const page = Number(location.hash.match(/^#seite-(\d+)$/)?.[1]);
   if (page >= 1 && page <= pages.length) { show(page); return; }
   el("search").value = "";
-  mode = location.hash === "#figuren" ? "C" : location.hash === "#folgen" ? "E" : location.hash === "#github" ? "G" : "H";
+  mode = location.hash === "#figuren" ? "C" : location.hash === "#folgen" ? "E" : location.hash === "#github" ? "G" : location.hash === "#moodboard" ? "M" : "H";
   nav();
 }
 onhashchange=route;el("search").oninput=listing;el("back").onclick=()=>openPage(n-1);el("next").onclick=()=>openPage(n+1);el("view").onclick=()=>{plain=!plain;show(n)};el("edit").onclick=()=>{el("editor").hidden=false;el("sheet").hidden=true;el("field").value=draft(n)??pages[n-1].text;el("field").focus()};el("cancel").onclick=()=>show(n);el("save").onclick=()=>{localStorage.setItem(prefix+n,el("field").value);plain=true;show(n);el("msg").textContent="Textentwurf in diesem Browser gespeichert."};
