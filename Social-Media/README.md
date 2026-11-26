@@ -8,6 +8,7 @@ Stand der Profilprüfung: **26. November 2026**. Ziel zum Start ist es, 3D-Druck
 | --- | --- | --- |
 | [Instagram @layerlokal](https://www.instagram.com/layerlokal/) | Unternehmenskonto mit LayerLokal-Logo und Bio. Der Aufruf an Druckerbesitzer und `kontakt@layerlokal.de` stehen in der Bio. Noch keine Beiträge. | Öffentliche Kontaktfelder vereinheitlichen, Website-Link in der Instagram-App ergänzen und Vorstellungsbeitrag veröffentlichen. |
 | [Facebook LayerLokal](https://www.facebook.com/profile.php?id=61596907383510) | Firmenseite mit Logo, Titelbild, Bio, Geschäfts-E-Mail und Website. Facebook zeigt bereits einen automatischen Beitrag zur Profilbildänderung. | Aktionsbutton für Nachrichten hinzufügen, Angaben zu Impressum und Datenschutz ergänzen und einen eigenen Startbeitrag veröffentlichen. |
+| [YouTube @LayerLokal](https://www.youtube.com/@LayerLokal) | Kanal mit Profilbild, Banner und Beschreibung eingerichtet. Beim öffentlichen Check waren keine Inhalte sichtbar. | Nach Freigabe das Erklärvideo veröffentlichen oder geeignete Instagram-Reels als Shorts wiederverwenden. |
 | LinkedIn | Die Unternehmensseite ist noch nicht erstellt. | Die Einrichtung über ein berechtigtes persönliches LinkedIn-Profil fortsetzen. |
 
 ## Vor dem ersten Aufruf
